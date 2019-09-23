@@ -84,3 +84,11 @@ function getStreetsReport(streetsArr) {
         console.log(`${street.name}, built in ${street.buildYear}, is a ${street.size} street.`);
     });
 }
+
+// Combined functions
+function getAllReports() {
+    getParksReport(parks);
+    getStreetsReport(streets);
+}
+
+getAllReports();
