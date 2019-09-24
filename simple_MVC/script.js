@@ -86,6 +86,55 @@ class View {
 
         return element;
     }
+
+    displayTodos(todos) {
+        // Delete all nodes
+        while (this.todoList.firstChild) {
+            this.todoList.removeChild(this.todoList.firstChild);
+        }
+
+        // Show default message
+        if(todos.length === 0) {
+            const p = this.createElement('p');
+            p.textContent = 'Nothing to do! Add a task?';
+            this.todoList.append(p);
+        } else {
+            // create todo item nodes for each todo located in state
+            todos.forEach(todo => {
+                const li = this.createElement('li');
+                li.id = todo.id;
+
+                // Each todo has a checkbox to toggle
+                const checkbox = this.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = todo.complete;
+
+                // Todo idtem text is in a contenteditable span
+                const span = this.createElement('span');
+                span.contentEditable = true;
+                span.classList.add('editable');
+
+                // If complete, add a strikethrough
+                if(todo.complete) {
+                    const strike = this.createElement('s');
+                    strike.textContent = todo.text;
+                    span.append(strike);
+                } else {
+                    // Or just display the text
+                    span.textContent = todo.text;
+                }
+
+                // Add a delete button as well
+                const deleteButton = this.createElement('button', 'delete');
+                deleteButton.textContent = 'Delete';
+                li.append(checkbox, span, deleteButton);
+
+                // Append nodes to the list
+                this.todoList.append(li);
+
+            });
+        }
+    }
 }
 
 class Controller {
