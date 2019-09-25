@@ -5,6 +5,12 @@ class Model {
             // { id: 1, text: 'Run a marathon', complete: false },
             // { id: 2, text: 'Plant a garden', complete: false }
         ]
+        
+    }
+
+    // make the model aware of the changes to todo list
+    bindTodoListChanged(callback) {
+        this.onTodoListChanged = callback;
     }
 
     addTodo(todoText) {
@@ -15,6 +21,8 @@ class Model {
         }
 
         this.todos.push(todo);
+
+        this.onTodoListChanged(this.todos);
     }
 
     // Map through all todos, replace the text of the todo with the specified id
@@ -25,11 +33,15 @@ class Model {
     // Use filter to delete a todo by id
     deleteTodo(id) {
         this.todos = this.todos.filter(todo => todo.id !== id);
+
+        this.onTodoListChanged(this.todos);
     }
 
     // Flip the 'complete' boolean on specified todo
     toggleTodo(id) {
         this.todos = this.todos.map(todo => todo.id === id ? { id: todo.id, text: todo.text, complete: !todo.complete } : todo );
+
+        this.onTodoListChanged(this.todos);
     }
 }
 
@@ -174,7 +186,15 @@ class Controller {
         this.model = model;
         this.view = view;
 
+        // explicit this binding
         this.onTodoListChanged(this.model.todos);
+        // connect to the listeners in view
+        this.view.bindAddTodo(this.handleAddTodo);
+        this.view.bindDeleteTodo(this.handleDeleteTodo);
+        this.view.bindToggleTodo(this.handleToggleTodo);
+
+        // connect the model to the controller
+        this.model.bindTodoListChanged(this.onTodoListChanged); 
     }
 
     onTodoListChanged = todos => {
@@ -196,6 +216,7 @@ class Controller {
     handleToggleTodo = id => {
         this.model.toggleTodo(id);
     }
+
 }
 
 const app = new Controller(new Model(), new View());
