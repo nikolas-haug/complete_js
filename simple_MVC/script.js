@@ -1,11 +1,19 @@
 class Model {
     constructor() {
         // The state of the model, an array of todo objects, prepopulated
-        this.todos = [
-            // { id: 1, text: 'Run a marathon', complete: false },
-            // { id: 2, text: 'Plant a garden', complete: false }
-        ]
+        this.todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+        // this.todos = [
+        //     // { id: 1, text: 'Run a marathon', complete: false },
+        //     // { id: 2, text: 'Plant a garden', complete: false }
+        // ]
         
+    }
+
+    // Private method to update local storage
+    _commit(todos) {
+        this.onTodoListChanged(todos);
+        localStorage.setItem('todos', JSON.stringify(todos));
     }
 
     // make the model aware of the changes to todo list
@@ -22,7 +30,8 @@ class Model {
 
         this.todos.push(todo);
 
-        this.onTodoListChanged(this.todos);
+        // this.onTodoListChanged(this.todos);
+        this._commit(this.todos);
     }
 
     // Map through all todos, replace the text of the todo with the specified id
@@ -34,14 +43,16 @@ class Model {
     deleteTodo(id) {
         this.todos = this.todos.filter(todo => todo.id !== id);
 
-        this.onTodoListChanged(this.todos);
+        // this.onTodoListChanged(this.todos);
+        this._commit(this.todos);
     }
 
     // Flip the 'complete' boolean on specified todo
     toggleTodo(id) {
         this.todos = this.todos.map(todo => todo.id === id ? { id: todo.id, text: todo.text, complete: !todo.complete } : todo );
 
-        this.onTodoListChanged(this.todos);
+        // this.onTodoListChanged(this.todos);
+        this._commit(this.todos);
     }
 }
 
@@ -73,6 +84,31 @@ class View {
 
         // Append the title, form, and list to the app
         this.app.append(this.title, this.form, this.todoList);
+
+        // Temporary state variable for the update methods
+        this._temporaryTodoText;
+        this._initLocalListeners();
+    }
+
+    // Update the temporary state
+    _initLocalListeners() {
+        this.todoList.addEventListener('input', event => {
+            if(event.target.className === 'editable') {
+                this._temporaryTodoText = event.target.innerText;
+            }
+        });
+    }
+
+    // Send the completed value to the model
+    bindEditTodo(handler) {
+        this.todoList.addEventListener('focusout', event => {
+            if(this._temporaryTodoText) {
+                const id = parseInt(event.target.parentElement.id);
+
+                handler(id, this._temporaryTodoText);
+                this._temporaryTodoText = '';
+            }
+        });
     }
 
     // Private methods not used outside of the class
@@ -192,6 +228,7 @@ class Controller {
         this.view.bindAddTodo(this.handleAddTodo);
         this.view.bindDeleteTodo(this.handleDeleteTodo);
         this.view.bindToggleTodo(this.handleToggleTodo);
+        this.view.bindEditTodo(this.handleEditTodo);
 
         // connect the model to the controller
         this.model.bindTodoListChanged(this.onTodoListChanged); 
