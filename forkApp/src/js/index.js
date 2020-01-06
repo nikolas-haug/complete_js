@@ -70,6 +70,7 @@ const controlRecipe = async () => {
             // Calculate servings and time
             state.recipe.calcTime();
             state.recipe.calcServings();
+            state.recipe.parseIngredients();
             console.log(state.recipe);
             // Render recipe
             // if(state.recipe.exist) {
