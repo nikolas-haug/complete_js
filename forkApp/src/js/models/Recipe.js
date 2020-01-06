@@ -13,18 +13,22 @@ export default class Recipe {
             this.img = res.data.recipe.image_url;
             this.url = res.data.recipe.source_url;
             this.ingredients = res.data.recipe.ingredients;
-            console.log(res);
+            // console.log(res);
+            this.exist = true;
         } catch(error) {
-            console.log(error);
+            // console.log(error);
             alert('Something went wrong :(');
+            // this.exist = false;
         }
     }
 
     calcTime() {
-        // Assuming that we need 15 minutes for each 3 ingredients
-        const numIngredients = this.ingredients.length;
-        const periods = Math.ceil(numIngredients / 3);
-        this.time = periods * 15;
+        // if(this.exist) {
+            // Assuming that we need 15 minutes for each 3 ingredients
+            const numIngredients = this.ingredients.length;
+            const periods = Math.ceil(numIngredients / 3);
+            this.time = periods * 15;
+        // }
     }
 
     calcServings() {
