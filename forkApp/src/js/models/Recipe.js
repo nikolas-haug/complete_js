@@ -52,7 +52,44 @@ export default class Recipe {
             const arrIng = ingredient.split(' ');
             const unitIndex = arrIng.findIndex(el2 => unitsShort.includes(el2));
 
-            return ingredient;
+            // Final object to return
+            let objIng;
+
+            if(unitIndex > -1) {
+                // There is a unit
+                // Ex. 4 1/2 cups, arrCound is [4, 1/2] --> eval("4+1/2") --> 4.5  
+                // Ex. 4 cups, arrCount is [4]
+                const arrCount = arrIng.slice(0, unitIndex);
+
+                let count;
+                if(arrCount.length === 1) {
+                    count = eval(arrIng[0].replace('-', '+'));
+                } else {
+                    count = eval(arrIng.slice(0, unitIndex).join('+'));
+                }
+                objIng = {
+                    count,
+                    unit: arrIng[unitIndex],
+                    ingredient: arrIng.slice(unitIndex + 1).join(' ')
+                }
+
+            } else if(parseInt(arrIng[0], 10)) {
+                // There is no unit, but 1st element is a number
+                objIng = {
+                    count: parseInt(arrIng[0], 10),
+                    unit: '',
+                    ingredient: arrIng.slice(1).join(' ')
+                }
+            } else if(unitIndex === -1) {
+                // There is NO unit and NO number in first position
+                objIng = {
+                    count: 1,
+                    unit: '',
+                    ingredient
+                }
+            } 
+
+            return objIng;
 
         });
         this.ingredients = newIngredients;
